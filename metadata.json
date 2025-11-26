@@ -1,0 +1,5 @@
+{
+  "name": "Finrp",
+  "description": "A frontend prototype for an AI-enhanced invoice creation module of a comprehensive ERP/CRM system, built with React, TypeScript, and Tailwind CSS. This demonstrates a core feature with a modern UI and integrates Gemini for AI-powered content generation.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <title>Finrp | AI-Powered Business Management</title>
+    <meta name="description" content="The all-in-one platform for SMEs to manage billing, CRM, ERP, finance, and compliance with the power of AI." />
+    <meta name="theme-color" content="#10b981">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22g1%22 x1=%220%25%22 y1=%22100%25%22 x2=%22100%25%22 y2=%220%25%22><stop offset=%220%25%22 stop-color=%22%2334d399%22/><stop offset=%22100%25%22 stop-color=%22%236ee7b7%22/></linearGradient><linearGradient id=%22g2%22 x1=%220%25%22 y1=%22100%25%22 x2=%22100%25%22 y2=%220%25%22><stop offset=%220%25%22 stop-color=%22%2310b981%22/><stop offset=%22100%25%22 stop-color=%22%2334d399%22/></linearGradient></defs><path d=%22M 50 15 L 15 85 L 60 85 L 50 15 Z%22 fill=%22url(%23g2)%22/><path d=%22M 50 15 L 85 85 L 60 85 L 50 15 Z%22 fill=%22url(%23g1)%22/></svg>">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // Configure Tailwind CSS to use the 'class' strategy for dark mode.
+      // This allows manual toggling instead of relying on the OS setting.
+      tailwind.config = {
+        darkMode: 'class',
+      }
+    </script>
+    <style>
+      /* Custom scrollbar for better aesthetics */
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: #f1f5f9; }
+      .dark ::-webkit-scrollbar-track { background: #1e293b; }
+      ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
+      .dark ::-webkit-scrollbar-thumb { background: #475569; }
+      ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+      .dark ::-webkit-scrollbar-thumb:hover { background: #334155; }
+      
+      @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes buildUpVertical { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+      @keyframes craneSwing { 0% { transform: rotate(-3deg); } 50% { transform: rotate(5deg); } 100% { transform: rotate(-3deg); } }
+      @keyframes smokePuff { from { opacity: 0.6; transform: translateY(0) scale(0.2); } to { opacity: 0; transform: translateY(-60px) scale(1); } }
+      @keyframes hookBob { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(4px); } 60% { transform: translateY(4px); } }
+      @keyframes driveAcross { from { transform: translateX(-200px); } to { transform: translateX(1600px); } }
+      @keyframes pulse { 50% { opacity: 0.2; } }
+
+      .animate-fadeInUp { animation: fadeInUp 0.8s ease-out forwards; }
+      .animate-scaleIn { animation: scaleIn 0.6s ease-out forwards; }
+      .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+      .animate-buildUpVertical { transform-origin: bottom; animation: buildUpVertical 1.5s ease-out forwards; }
+      .animate-craneSwing { animation: craneSwing 8s ease-in-out infinite; }
+      .animate-smokePuff { transform-origin: center; opacity: 0; animation: smokePuff 5s linear infinite; }
+      .animate-hookBob { animation: hookBob 4s ease-in-out infinite; }
+      .animate-drive { animation: driveAcross 15s linear infinite; }
+      .animate-pulse { animation: pulse 2.5s ease-in-out infinite; }
+
+      /* Scroll-triggered animations */
+      .scroll-animate { opacity: 0; transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+      .scroll-animate.slide-up { transform: translateY(40px); }
+      .scroll-animate.slide-in-right { transform: translateX(40px); }
+      .is-visible.scroll-animate, .is-visible .scroll-animate { opacity: 1; transform: translateY(0) translateX(0); }
+      
+      /* Staggered animation */
+      .is-visible .stagger-child-1 { transition-delay: 100ms; }
+      .is-visible .stagger-child-2 { transition-delay: 200ms; }
+      .is-visible .stagger-child-3 { transition-delay: 300ms; }
+      .is-visible .stagger-child-4 { transition-delay: 400ms; }
+      .is-visible .stagger-child-5 { transition-delay: 500ms; }
+      .is-visible .stagger-child-6 { transition-delay: 600ms; }
+      
+      /* General Animation Delays */
+      .anim-delay-100 { animation-delay: 100ms; } .anim-delay-200 { animation-delay: 200ms; } .anim-delay-300 { animation-delay: 300ms; } .anim-delay-400 { animation-delay: 400ms; } .anim-delay-500 { animation-delay: 500ms; } .anim-delay-600 { animation-delay: 600ms; } .anim-delay-700 { animation-delay: 700ms; } .anim-delay-800 { animation-delay: 800ms; } .anim-delay-900 { animation-delay: 900ms; } .anim-delay-1000 { animation-delay: 1000ms; } .anim-delay-1200 { animation-delay: 1200ms; } .anim-delay-1500 { animation-delay: 1500ms; } .anim-delay-1800 { animation-delay: 1800ms; } .anim-delay-2000 { animation-delay: 2000ms; } .anim-delay-2200 { animation-delay: 2200ms; } .anim-delay-2500 { animation-delay: 2500ms; } .anim-delay-2800 { animation-delay: 2800ms; } .anim-delay-3000 { animation-delay: 3000ms; } .anim-delay-3500 { animation-delay: 3500ms; } .anim-delay-4000 { animation-delay: 4000ms; } .anim-delay-4500 { animation-delay: 4500ms; } .anim-delay-5000 { animation-delay: 5000ms; } .anim-delay-5200 { animation-delay: 5200ms; } .anim-delay-5800 { animation-delay: 5800ms; }
+
+      /* Print-specific styles for PDF generation */
+      @media print {
+        body * { visibility: hidden; }
+        .printable-area, .printable-area * { visibility: visible; }
+        .printable-area { position: absolute; left: 0; top: 0; width: 100%; height: 100%; padding: 0; margin: 0; }
+        .print-hide { display: none !important; }
+      }
+    </style>
+    <script>
+      // Avoids FOUC. Default to light theme unless 'dark' is explicitly stored.
+      if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+          "@google/genai": "https://aistudiocdn.com/@google/genai@^1.22.0",
+          "react/": "https://aistudiocdn.com/react@^19.2.0/",
+          "react": "https://aistudiocdn.com/react@^19.2.0"
+        }
+      }
+    </script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
