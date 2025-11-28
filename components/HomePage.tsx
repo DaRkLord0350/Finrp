@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
 import useTheme from '../hooks/useTheme';
 import ThemeToggle from './ui/ThemeToggle';

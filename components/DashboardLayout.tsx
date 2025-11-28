@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { NavItemProps, BusinessProfile } from '../types';
 import useTheme from '../hooks/useTheme';
@@ -60,10 +62,20 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ currentPath, navigate
     const [isAdvisorChatOpen, setIsAdvisorChatOpen] = useState(false);
     const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(() => {
         try {
+            if (typeof window === 'undefined') return null;
             const savedProfile = localStorage.getItem('businessProfile');
-            return savedProfile ? JSON.parse(savedProfile) : null;
+            if (!savedProfile) return null;
+            // Validate JSON before parsing
+            if (savedProfile.trim().length === 0) {
+                localStorage.removeItem('businessProfile');
+                return null;
+            }
+            return JSON.parse(savedProfile);
         } catch (e) {
-            console.error("Failed to parse business profile from localStorage", e);
+            console.warn("Failed to parse business profile from localStorage, clearing it", e);
+            try {
+                localStorage.removeItem('businessProfile');
+            } catch {}
             return null;
         }
     });

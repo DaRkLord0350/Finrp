@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { Invoice, Customer, InvoiceItem } from '../types';
 import { getCustomers, getNextInvoiceId } from '../services/mockApi';

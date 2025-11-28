@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useState, useEffect, useCallback, useContext } from 'react';
 
 type Theme = 'light' | 'dark';
@@ -14,9 +16,11 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
     try {
-      const storedTheme = localStorage.getItem('theme') as Theme | null;
-      // Default to 'light' if nothing is stored or localStorage is unavailable.
-      return storedTheme || 'light';
+      if (typeof window !== 'undefined') {
+        const storedTheme = localStorage.getItem('theme') as Theme | null;
+        return storedTheme || 'light';
+      }
+      return 'light';
     } catch (e) {
       return 'light';
     }
@@ -42,7 +46,6 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
   }, []);
 
-  // FIX: Replaced JSX with React.createElement to be valid in a .ts file.
   return React.createElement(ThemeContext.Provider, { value: { theme, toggleTheme } }, children);
 };
 

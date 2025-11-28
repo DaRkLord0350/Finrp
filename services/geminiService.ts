@@ -1,14 +1,16 @@
 import { GoogleGenAI } from "@google/genai";
 
-// As per guidelines, the API key must be available as an environment variable.
-if (!process.env.API_KEY) {
-  // In a real app, you might want to handle this more gracefully,
-  // but for this context, throwing an error is sufficient to indicate a misconfiguration.
-  console.error("API_KEY environment variable not set. Please configure it in your environment.");
-}
+// Get API key from environment variable (must be NEXT_PUBLIC_ for client-side access)
+const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
 
-// FIX: Initialize GoogleGenAI with a named apiKey parameter.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Initialize GoogleGenAI only if API key is available
+let ai: any = null;
+
+if (apiKey) {
+  ai = new GoogleGenAI({ apiKey });
+} else {
+  console.warn("Gemini API key not configured. Set NEXT_PUBLIC_GEMINI_API_KEY in .env.local");
+}
 
 /**
  * Generates content using the Gemini API.
@@ -18,14 +20,16 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
  */
 export const generateContent = async (prompt: string, systemInstruction?: string): Promise<string> => {
   try {
-    // FIX: Use ai.models.generateContent with the recommended model for basic text tasks.
+    if (!ai) {
+      return "Gemini API is not configured. Please set NEXT_PUBLIC_GEMINI_API_KEY in your .env.local file.";
+    }
+    
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
       ...(systemInstruction && { config: { systemInstruction } }),
     });
     
-    // FIX: Directly access the .text property for the response as per guidelines.
     return response.text;
   } catch (error) {
     console.error("Error generating content with Gemini:", error);
