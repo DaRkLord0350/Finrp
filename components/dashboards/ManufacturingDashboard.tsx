@@ -37,6 +37,7 @@ const getStatusClass = (status: string) => {
 };
 
 const ManufacturingDashboard: React.FC<DashboardProps> = ({ businessProfile }) => {
+  void businessProfile;
   const [theme, toggleTheme] = useTheme();
   const [data, setData] = useState<ManufacturingData | null>(null);
   const [isLoading, setIsLoading] = useState(true);

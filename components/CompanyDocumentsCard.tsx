@@ -54,7 +54,7 @@ const CompanyDocumentsCard: React.FC = () => {
                         </div>
                         <input
                             type="file"
-                            ref={el => fileInputRefs.current[doc.id] = el}
+                            ref={el => {fileInputRefs.current[doc.id] = el}}
                             className="hidden"
                             onChange={(e) => handleFileSelect(doc.id, e.target.files ? e.target.files[0] : null)}
                         />

@@ -168,6 +168,7 @@ export const getManufacturingData = (): Promise<ManufacturingData> => new Promis
 
 // --- Mock API for Virtual CFO metrics ---
 export const getMockMetricsForProfile = (profile: BusinessProfile): Promise<string> => {
+    void profile;
     // ... (existing implementation)
     return new Promise(resolve => setTimeout(() => resolve(''), 300));
 };

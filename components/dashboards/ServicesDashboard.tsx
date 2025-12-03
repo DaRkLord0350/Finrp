@@ -38,6 +38,7 @@ const getStatusClass = (status: string) => {
 };
 
 const ServicesDashboard: React.FC<DashboardProps> = ({ businessProfile }) => {
+  void businessProfile;
   const [theme, toggleTheme] = useTheme();
   const [data, setData] = useState<ServicesData | null>(null);
   const [isLoading, setIsLoading] = useState(true);

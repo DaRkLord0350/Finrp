@@ -28,6 +28,7 @@ const StatCard: React.FC<any> = ({ icon, label, value, change, changeColor }) =>
 );
 
 const RetailDashboard: React.FC<DashboardProps> = ({ businessProfile }) => {
+  void businessProfile;
   const [theme, toggleTheme] = useTheme();
   const [data, setData] = useState<RetailData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
