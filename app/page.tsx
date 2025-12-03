@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import HomePage from '@/components/HomePage';
-import LoginPage from '@/components/LoginPage';
+// import LoginPage from '@/components/LoginPage';
 import DashboardLayout from '@/components/DashboardLayout';
 
 export default function Home() {
@@ -15,10 +15,10 @@ export default function Home() {
     setMounted(true);
   }, []);
 
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-    router.push('/dashboard');
-  };
+  // const handleLogin = () => {
+  //   setIsAuthenticated(true);
+  //   router.push('/dashboard');
+  // };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
