@@ -7,6 +7,7 @@ import useTheme from '../../hooks/useTheme';
 import ThemeToggle from '../ui/ThemeToggle';
 import Skeleton from '../ui/Skeleton';
 import LineChart from '../charts/LineChart';
+import { useUser } from '@clerk/nextjs';
 
 interface DashboardProps {
   businessProfile: BusinessProfile;
@@ -30,6 +31,7 @@ const StatCard: React.FC<any> = ({ icon, label, value, change, changeColor }) =>
 const RetailDashboard: React.FC<DashboardProps> = ({ businessProfile }) => {
   void businessProfile;
   const [theme, toggleTheme] = useTheme();
+  const { user } = useUser();
   const [data, setData] = useState<RetailData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -65,7 +67,7 @@ const RetailDashboard: React.FC<DashboardProps> = ({ businessProfile }) => {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-8">
       <PageHeader
-        title="Retail & Trading Dashboard"
+        title={`${user?.firstName || 'User'}'s Retail & Trading Dashboard`}
         subtitle="Your personalized overview for sales and inventory."
       >
         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />

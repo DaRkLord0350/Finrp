@@ -8,6 +8,7 @@ import ThemeToggle from '../ui/ThemeToggle';
 import Skeleton from '../ui/Skeleton';
 import BarChart from '../charts/BarChart';
 import PieChart from '../charts/PieChart';
+import { useUser } from '@clerk/nextjs';
 
 interface DashboardProps {
   businessProfile: BusinessProfile;
@@ -40,6 +41,7 @@ const getStatusClass = (status: string) => {
 const ServicesDashboard: React.FC<DashboardProps> = ({ businessProfile }) => {
   void businessProfile;
   const [theme, toggleTheme] = useTheme();
+  const { user } = useUser();
   const [data, setData] = useState<ServicesData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -84,7 +86,7 @@ const ServicesDashboard: React.FC<DashboardProps> = ({ businessProfile }) => {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-8">
       <PageHeader
-        title="Services Dashboard"
+        title={`${user?.firstName || 'User'}'s Services Dashboard`}
         subtitle="Your personalized overview for managing projects and clients."
       >
         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />

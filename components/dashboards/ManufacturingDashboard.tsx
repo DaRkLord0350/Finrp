@@ -7,6 +7,7 @@ import useTheme from '../../hooks/useTheme';
 import ThemeToggle from '../ui/ThemeToggle';
 import Skeleton from '../ui/Skeleton';
 import BarChart from '../charts/BarChart';
+import { useUser } from '@clerk/nextjs';
 
 interface DashboardProps {
   businessProfile: BusinessProfile;
@@ -39,6 +40,7 @@ const getStatusClass = (status: string) => {
 const ManufacturingDashboard: React.FC<DashboardProps> = ({ businessProfile }) => {
   void businessProfile;
   const [theme, toggleTheme] = useTheme();
+  const { user } = useUser();
   const [data, setData] = useState<ManufacturingData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -81,7 +83,7 @@ const ManufacturingDashboard: React.FC<DashboardProps> = ({ businessProfile }) =
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-8">
       <PageHeader
-        title="Manufacturing Dashboard"
+        title={`${user?.firstName || 'User'}'s Manufacturing Dashboard`}
         subtitle="Your personalized overview for production and inventory."
       >
         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />

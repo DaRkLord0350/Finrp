@@ -3,6 +3,7 @@
 import React from 'react';
 import '../styles/globals.css';
 import { ThemeProvider } from '@/hooks/useTheme';
+import { ClerkProvider } from '@clerk/nextjs';
 
 export default function RootLayout({
   children,
@@ -94,9 +95,11 @@ export default function RootLayout({
         }} />
       </head>
       <body className="bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
+        <ClerkProvider>
+          <ThemeProvider>
+            {children}
+          </ThemeProvider>
+        </ClerkProvider>
       </body>
     </html>
   );

@@ -2,15 +2,18 @@
 
 import DashboardLayout from '@/components/DashboardLayout';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@clerk/nextjs';
 
 export default function CrmPage() {
   const router = useRouter();
+  const { signOut } = useAuth();
 
   const navigate = (path: string) => {
     router.push(path);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut();
     router.push('/');
   };
 

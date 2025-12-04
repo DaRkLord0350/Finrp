@@ -10,6 +10,7 @@ import PageHeader from './PageHeader';
 import ServicesDashboard from './dashboards/ServicesDashboard';
 import RetailDashboard from './dashboards/RetailDashboard';
 import ManufacturingDashboard from './dashboards/ManufacturingDashboard';
+import { useUser } from '@clerk/nextjs';
 
 interface DashboardPageProps {
   businessProfile: BusinessProfile | null;
@@ -18,12 +19,13 @@ interface DashboardPageProps {
 
 const DashboardPage: React.FC<DashboardPageProps> = ({ businessProfile, navigate }) => {
   const [theme, toggleTheme] = useTheme();
+  const { user } = useUser();
 
   if (!businessProfile) {
     return (
       <div className="p-4 sm:p-6 lg:p-8 animate-fadeInUp">
           <PageHeader
-            title="Welcome to your Dashboard!"
+            title={`Welcome to your Dashboard, ${user?.firstName || 'User'}!`}
             subtitle="Let's get your business profile set up for a personalized experience."
           >
              <ThemeToggle theme={theme} toggleTheme={toggleTheme} />

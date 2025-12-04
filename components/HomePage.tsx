@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import useTheme from '../hooks/useTheme';
 import ThemeToggle from './ui/ThemeToggle';
 import Logo from './ui/Logo';
+import { useUser, useClerk } from '@clerk/nextjs';
 
 interface HomePageProps {
   navigate: (path: string) => void;
@@ -71,6 +72,8 @@ const FeatureCard: React.FC<{icon: React.ReactNode, title: string, description: 
 const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
     const [theme, toggleTheme] = useTheme();
     const sectionsRef = useRef<(HTMLElement | null)[]>([]);
+    const { user, isLoaded } = useUser();
+    const { openSignIn, openSignUp } = useClerk();
 
     useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
@@ -112,8 +115,34 @@ const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                     </nav>
                     <div className="flex items-center space-x-3">
                         <ThemeToggle theme={theme} toggleTheme={toggleTheme} />
-                        <button onClick={() => navigate('/login')} className="hidden sm:inline-block px-6 py-2 rounded-md font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">Sign In</button>
-                        <button onClick={() => navigate('/login')} className="px-6 py-2 rounded-md font-semibold text-white bg-emerald-500 hover:bg-emerald-600 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">Get Started</button>
+                        {isLoaded && user ? (
+                          <>
+                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                              Welcome, {user.firstName}!
+                            </span>
+                            <button 
+                              onClick={() => navigate('/dashboard')} 
+                              className="hidden sm:inline-block px-6 py-2 rounded-md font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition-colors"
+                            >
+                              Dashboard
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button 
+                              onClick={() => navigate('/sign-in')} 
+                              className="hidden sm:inline-block px-6 py-2 rounded-md font-semibold hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            >
+                              Sign In
+                            </button>
+                            <button 
+                              onClick={() => navigate('/sign-up')} 
+                              className="px-6 py-2 rounded-md font-semibold text-white bg-emerald-500 hover:bg-emerald-600 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                            >
+                              Get Started
+                            </button>
+                          </>
+                        )}
                     </div>
                 </div>
             </div>
@@ -231,8 +260,18 @@ const HomePage: React.FC<HomePageProps> = ({ navigate }) => {
                         <h1 className="text-4xl md:text-6xl font-extrabold text-slate-800 dark:text-slate-100 leading-tight mb-4">Ready to <span className="text-emerald-500">Transform</span> Your Business?</h1>
                         <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 max-w-3xl mx-auto mb-8">Join thousands of businesses already using our platform to streamline operations and boost growth.</p>
                         <div className="flex justify-center space-x-4">
-                            <button onClick={() => navigate('/login')} className="px-8 py-4 rounded-md font-semibold text-white bg-emerald-500 hover:bg-emerald-600 transition-transform transform hover:scale-105 shadow-lg">Try Demo Now &rarr;</button>
-                            <button onClick={() => navigate('/login')} className="px-8 py-4 rounded-md font-semibold bg-white text-slate-700 dark:bg-yellow-400 dark:text-slate-900 border-2 border-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-500 transition-all shadow-lg transform hover:scale-105">Start Free Trial</button>
+                            <button 
+                              onClick={() => user ? navigate('/dashboard') : navigate('/sign-in')} 
+                              className="px-8 py-4 rounded-md font-semibold text-white bg-emerald-500 hover:bg-emerald-600 transition-transform transform hover:scale-105 shadow-lg"
+                            >
+                              {user ? 'Go to Dashboard' : 'Try Demo Now'} &rarr;
+                            </button>
+                            <button 
+                              onClick={() => navigate('/sign-up')} 
+                              className="px-8 py-4 rounded-md font-semibold bg-white text-slate-700 dark:bg-yellow-400 dark:text-slate-900 border-2 border-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-500 transition-all shadow-lg transform hover:scale-105"
+                            >
+                              Start Free Trial
+                            </button>
                         </div>
                     </div>
                 </div>

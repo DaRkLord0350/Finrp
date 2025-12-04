@@ -1,18 +1,21 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@clerk/nextjs';
 import { useEffect, useState } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
 
 export default function Dashboard() {
   const router = useRouter();
+  const { signOut } = useAuth();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut();
     router.push('/');
   };
 

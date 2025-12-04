@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { NavItemProps, BusinessProfile } from '../types';
 import useTheme from '../hooks/useTheme';
 import Logo from './ui/Logo';
+import { useUser } from '@clerk/nextjs';
 
 // Import page components
 import DashboardPage from './DashboardPage';
@@ -60,6 +61,7 @@ const navItems: Omit<NavItemProps, 'active' | 'navigate'>[] = [
 const DashboardLayout: React.FC<DashboardLayoutProps> = ({ currentPath, navigate, onLogout }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isAdvisorChatOpen, setIsAdvisorChatOpen] = useState(false);
+    const { user, isLoaded } = useUser();
     const [businessProfile, setBusinessProfile] = useState<BusinessProfile | null>(() => {
         try {
             if (typeof window === 'undefined') return null;
@@ -141,10 +143,18 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ currentPath, navigate
             </nav>
             <div className="p-4 border-t border-slate-200 dark:border-slate-700">
                  <div className="flex items-center">
-                    <img className="h-10 w-10 rounded-full" src="https://i.pravatar.cc/150?u=rajesh" alt="User" />
+                    <img 
+                        className="h-10 w-10 rounded-full object-cover" 
+                        src={user?.imageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.fullName || 'User')}&background=10b981&color=fff`}
+                        alt={user?.fullName || 'User'} 
+                    />
                     <div className="ml-3 flex-1">
-                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Rajesh Kumar</p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">rajesh@kumarenterprises.com</p>
+                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                            {user?.fullName || 'User'}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {user?.emailAddresses?.[0]?.emailAddress || 'user@example.com'}
+                        </p>
                     </div>
                  </div>
                  <button onClick={onLogout} className="w-full mt-4 text-left flex items-center px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg">
