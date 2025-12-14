@@ -11,10 +11,39 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url = env("DATABASE_URL")
 }
 
-model User {
-  id    Int    @id @default(autoincrement())
-  name  String
-  email String @unique
+model Customer {
+  id        String    @id @default(uuid())
+  userId    String    // For Clerk authentication linkage
+  name      String
+  email     String
+  address   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  invoices  Invoice[]
+}
+
+model Invoice {
+  id          String        @id // Custom ID like INV-2025-001
+  userId      String
+  customerId  String
+  customer    Customer      @relation(fields: [customerId], references: [id])
+  issueDate   String        // YYYY-MM-DD
+  dueDate     String        // YYYY-MM-DD
+  status      String        // Paid, Pending, Overdue, Draft
+  notes       String?
+  items       InvoiceItem[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model InvoiceItem {
+  id          String   @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Int
+  rate        Float
 }
