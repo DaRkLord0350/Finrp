@@ -1,13 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
-  webpack: (config) => {
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-    };
-    return config;
-  },
+  // reactStrictMode: true,
+  // webpack: (config) => {
+  //   config.resolve.fallback = {
+  //     ...config.resolve.fallback,
+  //   };
+  //   return config;
+  // },
+  turbopack: {},
 };
 
 export default nextConfig;
