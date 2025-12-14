@@ -1,6 +1,8 @@
-// Mock Prisma Client to avoid build errors when the client is not generated
-export const db = new Proxy({}, {
-  get: () => new Proxy({}, {
-    get: () => async () => []
-  })
-}) as any;
+import { PrismaClient } from '@prisma/client';
+
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
+
+export const db = globalForPrisma.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db;
+
