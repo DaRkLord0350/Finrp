@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Invoice, Customer, InvoiceItem } from '../types';
-import { getCustomers, getNextInvoiceId } from '../services/mockApi';
+import { getCustomers, getNextInvoiceId } from '../services/billingService';
 import Card from './ui/Card';
 import Button from './ui/Button';
 import Input from './ui/Input';
