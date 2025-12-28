@@ -1,4 +1,12 @@
+import { parse } from 'path';
 import { Invoice, Customer } from '../types';
+
+const formatDateForFrontend = (dateString: string | Date): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  // Returns date in YYYY-MM-DD format which is requried for input type="date"
+  return date.toISOString().split('T')[0];  
+};
 
 export const getInvoices = async (): Promise<Invoice[]> => {
   try {
@@ -8,7 +16,11 @@ export const getInvoices = async (): Promise<Invoice[]> => {
         return [];
     }
     const data = await response.json();
-    return data;
+    return data.map((inv: any) => ({
+        ...inv,
+        issueDate: formatDateForFrontend(inv.issueDate),
+        dueDate: formatDateForFrontend(inv.dueDate),
+    }));
   } catch (error) {
     console.error("Error fetching invoices:", error);
     return [];
@@ -32,7 +44,11 @@ export const saveInvoice = async (invoice: Invoice): Promise<Invoice> => {
     // If saving a new invoice, ensuring customerId is set from the customer object
     const payload = {
         ...invoice,
-        customerId: invoice.customer.id
+        customerId: invoice.customer.id,
+        // Convert frontend YYYY-MM-DD back to ISO for DB if necessary, 
+        // though Prisma often handles strings well, explicit ISO is safer.
+        issueDate: new Date(invoice.issueDate).toISOString(),
+        dueDate: new Date(invoice.dueDate).toISOString(),
     };
 
     const response = await fetch('/api/invoices', {
@@ -42,7 +58,14 @@ export const saveInvoice = async (invoice: Invoice): Promise<Invoice> => {
     });
 
     if (!response.ok) throw new Error("Failed to save");
-    return await response.json();
+    const savedData = await response.json();
+
+    // Return with formatted dates for the UI state
+    return {
+      ...savedData,
+      issueDate: formatDateForFrontend(savedData.issueDate),
+      dueDate: formatDateForFrontend(savedData.dueDate),
+    }
   } catch (error) {
     console.error("Error saving invoice:", error);
     throw error;
@@ -50,23 +73,24 @@ export const saveInvoice = async (invoice: Invoice): Promise<Invoice> => {
 };
 
 export const getNextInvoiceId = async (): Promise<string> => {
-    // We fetch current invoices to calculate the next ID
-    const invoices = await getInvoices();
-    
-    // Default to year-based ID
-    const year = new Date().getFullYear();
-    let maxSequence = 0;
-    
-    invoices.forEach(inv => {
-        // Assuming ID format is INV-YYYY-XXX
-        const parts = inv.id.split('-');
-        if (parts.length === 3) {
-            const sequence = parseInt(parts[2], 10);
-            if (!isNaN(sequence) && sequence > maxSequence) {
-                maxSequence = sequence;
-            }
-        }
-    });
+    try {
+        const invoices = await getInvoices();
+        const year = new Date().getFullYear();
+        let maxSeq = 0;
 
-    return `INV-${year}-${String(maxSequence + 1).padStart(3, '0')}`;
+        invoices.forEach(inv => {
+          // Expecting format INV-YYYY-XXXX
+          const parts = inv.id.split('-');
+          if (parts.length === 3) {
+            const sequence = parseInt(parts[2], 10);
+            if (!isNaN(sequence) && sequence > maxSeq) {
+              maxSeq = sequence;
+            }
+          }   
+        });
+        
+        return `INV-${year}-${String(maxSeq + 1).padStart(3, '0')}`;
+    } catch (e) { 
+      return `INV-${new Date().getFullYear()}-001`;
+    }     
 };
