@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Card from './ui/Card';
 import Button from './ui/Button';
 import { StatCardData, Invoice, InvoiceStatus } from '../types';
-import { getInvoices, saveInvoice } from '../services/mockApi';
+import { getInvoices, saveInvoice } from '../services/billingService';
 import InvoiceCreator from './InvoiceCreator';
 import AIAssistant from './AIAssistant';
 import InvoicePDFPreview from './InvoicePDFPreview';
