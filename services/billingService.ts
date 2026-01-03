@@ -39,6 +39,22 @@ export const getCustomers = async (): Promise<Customer[]> => {
   }
 };
 
+export const createCustomer = async (customerData: { name: string; email?: string; address?: string; }): Promise<Customer | null> => {
+  try {
+    const response = await fetch('/api/customers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(customerData),
+    });
+
+    if (!response.ok) throw new Error("Failed to create customer");
+    return await response.json();
+  } catch (error) {
+    console.error("Error creating customer:", error);
+    return null;
+  }
+};
+
 export const saveInvoice = async (invoice: Invoice): Promise<Invoice> => {
   try {
     // If saving a new invoice, ensuring customerId is set from the customer object
