@@ -44,3 +44,34 @@ export async function GET() {
     return new NextResponse('Internal Error', { status: 500 })
   }
 }
+
+export async function POST(req: Request) {
+  try {
+    const { userId } = await auth()
+
+    if (!userId) {
+      return new NextResponse('Unauthorized', { status: 401 })
+    }
+
+    const body = await req.json()
+    const { name, email, address } = body
+
+    if (!name) {
+      return new NextResponse('Name is required', { status: 400 }) 
+    }
+
+    const customer = await db.customer.create({
+      data: {
+        userId,
+        name,
+        email: email || '',
+        address: address || '',
+      },
+    })
+
+    return NextResponse.json(customer)
+  } catch (error) {
+    console.error('[CUSTOMERS_POST]', error)
+    return new NextResponse('Internal Error', { status: 500 })
+  }
+}
