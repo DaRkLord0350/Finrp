@@ -8,6 +8,7 @@ import Button from './ui/Button';
 import Input from './ui/Input';
 import InvoiceItemsTable from './InvoiceItemsTable';
 import AIAssistant from './AIAssistant';
+import AddCustomerModal from './AddCustomerModal';
 
 interface InvoiceCreatorProps {
   invoice?: Invoice;
@@ -19,6 +20,7 @@ const InvoiceCreator: React.FC<InvoiceCreatorProps> = ({ invoice, onSave, onCanc
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [currentInvoice, setCurrentInvoice] = useState<Partial<Invoice>>(invoice || { status: 'Draft', items: [{ id: '1', description: '', quantity: 1, rate: 0 }] });
   const [isAiAssistantOpen, setIsAiAssistantOpen] = useState(false);
+  const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const [aiTarget, setAiTarget] = useState<'notes' | number | null>(null);
 
   useEffect(() => {
@@ -38,6 +40,11 @@ const InvoiceCreator: React.FC<InvoiceCreatorProps> = ({ invoice, onSave, onCanc
         setCurrentInvoice({...currentInvoice, customer});
       }
   }
+
+  const handleNewCustomerAdded = (newCustomer: Customer) => {
+    setCustomers(prev => [...prev, newCustomer]);
+    setCurrentInvoice({ ...currentInvoice, customer: newCustomer });
+  };
 
   const handleSave = (status: 'Draft' | 'Pending') => {
     // Basic validation
@@ -66,6 +73,8 @@ const InvoiceCreator: React.FC<InvoiceCreatorProps> = ({ invoice, onSave, onCanc
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-8 animate-fadeInUp">
       {isAiAssistantOpen && <AIAssistant onClose={() => setIsAiAssistantOpen(false)} onGeneratedText={onGeneratedText} />}
+      {isAddCustomerOpen && <AddCustomerModal onClose={() => setIsAddCustomerOpen(false)} onCustomerAdded={handleNewCustomerAdded} />}
+      
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
@@ -91,7 +100,18 @@ const InvoiceCreator: React.FC<InvoiceCreatorProps> = ({ invoice, onSave, onCanc
           </div>
           {/* Bill To */}
           <div>
-            <h3 className="font-semibold text-slate-600 dark:text-slate-300 mb-2">To</h3>
+            <div className="flex justify-between items-center mb-2">
+                <h3 className="font-semibold text-slate-600 dark:text-slate-300">To</h3>
+                <button 
+                    onClick={() => setIsAddCustomerOpen(true)}
+                    className="text-xs text-emerald-600 hover:text-emerald-700 font-medium flex items-center"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                    </svg>
+                    Add New Customer
+                </button>
+            </div>
             <select
                 className="block w-full px-4 py-2 rounded-md border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
                 value={currentInvoice.customer?.id || ''}
