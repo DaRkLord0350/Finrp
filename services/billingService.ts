@@ -110,3 +110,36 @@ export const getNextInvoiceId = async (): Promise<string> => {
       return `INV-${new Date().getFullYear()}-001`;
     }     
 };
+
+
+export interface BusinessDetails {
+  businessName: string;
+  email: string;
+  address: string;
+}
+
+export const getBusinessProfile = async (): Promise<BusinessDetails> => {
+    try {
+      const response = await fetch('/api/profile');
+      if (!response.ok) throw new Error("Failed to fetch profile");
+      return await response.json();
+    } catch (error) {
+        console.error("Error fetching business profile:", error);
+        return { businessName: 'My Business', email: '', address: '' };
+    }
+};
+
+export const updateBusinessProfile = async (data: BusinessDetails): Promise<BusinessDetails | null> => {
+    try {
+        const response = await fetch('/api/profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) throw new Error("Failed to update profile");
+        return await response.json();
+      } catch (error) {
+        console.error("Error updating business profile:", error);
+        return null;
+      }
+};
