@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { Invoice, Customer, InvoiceItem } from '../types';
-import { getCustomers, getNextInvoiceId } from '../services/billingService';
+import { getCustomers, getNextInvoiceId, getBusinessProfile, BusinessDetails } from '../services/billingService';
 import Card from './ui/Card';
 import Button from './ui/Button';
 import Input from './ui/Input';
 import InvoiceItemsTable from './InvoiceItemsTable';
 import AIAssistant from './AIAssistant';
 import AddCustomerModal from './AddCustomerModal';
+import BusinessProfileModal from './BusinessProfileModal';
 
 interface InvoiceCreatorProps {
   invoice?: Invoice;
@@ -19,12 +20,19 @@ interface InvoiceCreatorProps {
 const InvoiceCreator: React.FC<InvoiceCreatorProps> = ({ invoice, onSave, onCancel }) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [currentInvoice, setCurrentInvoice] = useState<Partial<Invoice>>(invoice || { status: 'Draft', items: [{ id: '1', description: '', quantity: 1, rate: 0 }] });
+  
+  // New state for business profile
+  const [businessProfile, setBusinessProfile] = useState<BusinessDetails>({ businessName: '', email: '', address: '' });
+  
   const [isAiAssistantOpen, setIsAiAssistantOpen] = useState(false);
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [aiTarget, setAiTarget] = useState<'notes' | number | null>(null);
 
   useEffect(() => {
     getCustomers().then(setCustomers);
+    getBusinessProfile().then(setBusinessProfile);
+
     if (!invoice?.id) {
         getNextInvoiceId().then(id => setCurrentInvoice(prev => ({...prev, id})));
     }
@@ -44,6 +52,10 @@ const InvoiceCreator: React.FC<InvoiceCreatorProps> = ({ invoice, onSave, onCanc
   const handleNewCustomerAdded = (newCustomer: Customer) => {
     setCustomers(prev => [...prev, newCustomer]);
     setCurrentInvoice({ ...currentInvoice, customer: newCustomer });
+  };
+
+  const handleProfileUpdate = (updatedProfile: BusinessDetails) => {
+      setBusinessProfile(updatedProfile);
   };
 
   const handleSave = (status: 'Draft' | 'Pending') => {
@@ -74,6 +86,7 @@ const InvoiceCreator: React.FC<InvoiceCreatorProps> = ({ invoice, onSave, onCanc
     <div className="p-4 sm:p-6 lg:p-8 space-y-8 animate-fadeInUp">
       {isAiAssistantOpen && <AIAssistant onClose={() => setIsAiAssistantOpen(false)} onGeneratedText={onGeneratedText} />}
       {isAddCustomerOpen && <AddCustomerModal onClose={() => setIsAddCustomerOpen(false)} onCustomerAdded={handleNewCustomerAdded} />}
+      {isEditProfileOpen && <BusinessProfileModal initialData={businessProfile} onClose={() => setIsEditProfileOpen(false)} onSave={handleProfileUpdate} />}
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
@@ -93,10 +106,22 @@ const InvoiceCreator: React.FC<InvoiceCreatorProps> = ({ invoice, onSave, onCanc
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           {/* Bill From */}
           <div>
-            <h3 className="font-semibold text-slate-600 dark:text-slate-300 mb-2">From</h3>
-            <p className="font-bold text-slate-800 dark:text-slate-200">Kumar Enterprises</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">123 Industrial Area, New Delhi</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">rajesh@kumarenterprises.com</p>
+            <div className="flex justify-between items-center mb-2">
+                <h3 className="font-semibold text-slate-600 dark:text-slate-300">From</h3>
+                <button 
+                    onClick={() => setIsEditProfileOpen(true)}
+                    className="text-xs text-emerald-600 hover:text-emerald-700 font-medium flex items-center"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                    Edit Details
+                </button>
+            </div>
+            {/* Display fetched profile data or placeholders */}
+            <p className="font-bold text-slate-800 dark:text-slate-200">{businessProfile.businessName || 'Your Business Name'}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 whitespace-pre-wrap">{businessProfile.address || 'Add your business address'}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{businessProfile.email || 'Add email'}</p>
           </div>
           {/* Bill To */}
           <div>
