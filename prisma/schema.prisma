@@ -52,3 +52,13 @@ model InvoiceItem {
 
   @@index([invoiceId])
 }
+
+model BusinessProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  businessName String
+  email        String
+  address      String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
