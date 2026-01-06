@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Invoice } from '../types';
 import Button from './ui/Button';
 import Logo from './ui/Logo';
+import { getBusinessProfile, BusinessDetails } from '../services/billingService';
 
 interface InvoicePDFPreviewProps {
   invoice: Invoice;
@@ -9,7 +10,13 @@ interface InvoicePDFPreviewProps {
 }
 
 const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoice, onClose }) => {
+  const [businessProfile, setBusinessProfile] = useState<BusinessDetails | null>(null);
+
+  useEffect(() => {
+    getBusinessProfile().then(setBusinessProfile);
+  }, []);
     
+
   const calculateTotal = (withTax: boolean = true) => {
     const subtotal = invoice.items.reduce((acc, item) => acc + item.quantity * item.rate, 0);
     if (!withTax) return subtotal;
@@ -45,7 +52,7 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoice, onClose 
                                 <Logo className="w-8 h-8 text-emerald-500" />
                                 <span className="text-2xl font-bold text-slate-800">Finrp</span>
                             </div>
-                            <p className="text-sm text-slate-500 mt-1">Kumar Enterprises</p>
+                            <p className="text-sm text-slate-500 mt-1">{businessProfile?.businessName || 'Your Company'}</p>
                         </div>
                     </div>
 
@@ -59,9 +66,9 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoice, onClose 
                         </div>
                          <div className="text-right">
                             <p className="font-semibold text-slate-500 mb-1">From</p>
-                            <p className="font-bold text-slate-800 text-lg">Kumar Enterprises</p>
-                            <p className="text-slate-600">123 Industrial Area, New Delhi</p>
-                            <p className="text-slate-600">rajesh@kumarenterprises.com</p>
+                            <p className="font-bold text-slate-800 text-lg">{businessProfile?.businessName || 'Your Business Name'}</p>
+                            <p className="text-slate-600">{businessProfile?.address || 'Your Business Address'}</p>
+                            <p className="text-slate-600">{businessProfile?.email || 'Your Business Email'}</p>
                         </div>
                     </div>
                      <div className="grid grid-cols-2 gap-8 mt-4">
@@ -120,7 +127,7 @@ const InvoicePDFPreview: React.FC<InvoicePDFPreviewProps> = ({ invoice, onClose 
                     {/* Footer */}
                     <div className="mt-12 text-center text-xs text-slate-400 border-t pt-6">
                         <p>Thank you for your business! Please pay within the due date.</p>
-                        <p>Kumar Enterprises | +91 12345 67890 | www.kumarenterprises.com</p>
+                        <p>{businessProfile?.businessName || 'Finrp'} | {businessProfile?.email}</p>
                     </div>
                 </div>
             </div>
