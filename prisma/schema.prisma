@@ -59,6 +59,14 @@ model BusinessProfile {
   businessName String
   email        String
   address      String
+
+  // Compliance Fields
+  industry          String?
+  businessType      String?
+  annualTurnover    String?
+  hasEmoloyees      Boolean   @default(false)
+  numberofEmployees Int       @default(0)
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
