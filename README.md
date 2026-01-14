@@ -565,5 +565,4 @@ npx prisma studio
 
 This project is proprietary software. All rights reserved.
 
----
 
