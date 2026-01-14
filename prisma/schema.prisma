@@ -7,66 +7,57 @@ datasource db {
 }
 
 model Customer {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   userId    String
   name      String
   email     String
   address   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   invoices  Invoice[]
 
   @@index([userId])
 }
 
 model Invoice {
-  id         String       @id
+  id         String        @id
   userId     String
   customerId String
-
-  customer   Customer     @relation(fields: [customerId], references: [id])
-  items      InvoiceItem[]
-
   issueDate  String
   dueDate    String
   status     String
   notes      String?
-
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  customer   Customer      @relation(fields: [customerId], references: [id])
+  items      InvoiceItem[]
 
   @@index([userId])
   @@index([customerId])
 }
 
 model InvoiceItem {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
   invoiceId   String
-
-  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-
   description String
   quantity    Int
   rate        Float
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@index([invoiceId])
 }
 
 model BusinessProfile {
-  id           String   @id @default(cuid())
-  userId       String   @unique
-  businessName String
-  email        String
-  address      String
-
-  // Compliance Fields
-  industry          String?
-  businessType      String?
-  annualTurnover    String?
-  hasEmployees      Boolean   @default(false)
-  numberOfEmployees Int       @default(0)
-
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  address          String
+  businessName     String
+  email            String
+  industry         String?
+  businessType     String?
+  annualTurnover   Float?
+  hasEmployees     Boolean  @default(false)
+  numberOfEmployees Int?
 }
