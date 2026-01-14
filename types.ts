@@ -46,12 +46,19 @@ export interface Invoice {
 
 // Type for the new intelligent compliance feature
 export interface BusinessProfile {
-  businessType: 'Sole Proprietorship' | 'Partnership' | 'Private Limited Company';
-  industry: 'Services' | 'Manufacturing' | 'Retail & Trading';
-  annualTurnover: '< 20 Lakh' | '20 Lakh - 1 Crore' | '> 1 Crore';
-  hasEmployees: boolean;
-  numberOfEmployees: number;
+  //Billing Details
+  businessName: string;
+  email: string;
+  address: string;
+
+  businessType?: 'Sole Proprietorship' | 'Partnership' | 'Private Limited Company';
+  industry?: 'Services' | 'Manufacturing' | 'Retail & Trading';
+  annualTurnover?: '< 20 Lakh' | '20 Lakh - 1 Crore' | '> 1 Crore';
+  hasEmployees?: boolean;
+  numberOfEmployees?: number;
 }
+
+export type BusinessDetails = BusinessProfile;
 
 // Types for Compliance Page
 export type ComplianceStatus = 'Pending' | 'Overdue' | 'Completed' | 'Payment Processing';

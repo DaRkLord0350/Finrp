@@ -7,6 +7,7 @@ import PaymentModal from './PaymentModal';
 import ComplianceTaskCard from './ComplianceTaskCard';
 import CompanyDocumentsCard from './CompanyDocumentsCard';
 import PageHeader from './PageHeader';
+import { getBusinessProfile, updateBusinessProfile } from '../services/billingService';
 
 interface PageProps {
     businessProfile: BusinessProfile | null;
@@ -69,16 +70,43 @@ interface BusinessProfileSetupProps {
 
 const BusinessProfileSetup: React.FC<BusinessProfileSetupProps> = ({ onSave, onClose, initialProfile }) => {
     const [profile, setProfile] = useState<BusinessProfile>(initialProfile || {
+        businessName: '',
+        email: '',
+        address: '',
         businessType: 'Private Limited Company',
         industry: 'Services',
         annualTurnover: '20 Lakh - 1 Crore',
         hasEmployees: true,
         numberOfEmployees: 10,
     });
+    const [isLoading, setIsLoading] = useState(false);
 
-    const handleSave = () => {
-        onSave(profile);
-        onClose();
+    // Fetch minimal profile data if starting from null, to at least have name/email
+    useEffect(() => {
+        if (!initialProfile) {
+            getBusinessProfile().then(data => {
+                setProfile(prev => ({
+                    ...prev,
+                    businessName: data.businessName,
+                    email: data.email,
+                    address: data.address
+                }));
+            });
+        }
+    }, [initialProfile]);
+
+    const handleSave = async () => {
+        setIsLoading(true);
+        // Save to DB via API
+        const savedProfile = await updateBusinessProfile(profile);
+        setIsLoading(false);
+        
+        if (savedProfile) {
+            onSave(savedProfile);
+            onClose();
+        } else {
+            alert('Failed to save profile. Please check your connection.');
+        }
     };
 
     return (
@@ -90,6 +118,15 @@ const BusinessProfileSetup: React.FC<BusinessProfileSetupProps> = ({ onSave, onC
                 </div>
                 <p className="text-slate-600 dark:text-slate-300 mb-6">Provide a few details to get a personalized list of your compliance requirements.</p>
                 <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Business Name</label>
+                        <input 
+                            type="text" 
+                            value={profile.businessName} 
+                            onChange={e => setProfile({...profile, businessName: e.target.value})} 
+                            className="block w-full px-4 py-2 rounded-md border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm"
+                        />
+                    </div>
                     <div>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Business Type</label>
                         <select value={profile.businessType} onChange={e => setProfile({...profile, businessType: e.target.value as any})} className="block w-full px-4 py-2 rounded-md border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 shadow-sm focus:border-emerald-500 focus:ring-emerald-500 sm:text-sm">
@@ -152,7 +189,9 @@ const BusinessProfileSetup: React.FC<BusinessProfileSetupProps> = ({ onSave, onC
                     </div>
                 </div>
                 <div className="mt-8 flex justify-end">
-                    <Button onClick={handleSave} variant="primary">Save Profile & Get Compliances</Button>
+                    <Button onClick={handleSave} variant="primary" disabled={isLoading}>
+                        {isLoading ? <Spinner size="sm" /> : 'Save Profile & Get Compliances'}
+                    </Button>
                 </div>
             </Card>
         </div>
@@ -173,6 +212,16 @@ const CompliancePage: React.FC<PageProps> = ({ businessProfile, setBusinessProfi
     const [isSyncing, setIsSyncing] = useState(false);
     const [lastSynced, setLastSynced] = useState<Date | null>(null);
     
+    // Fetch profile on mount if not already present
+    useEffect(() => {
+        if (!businessProfile) {
+            getBusinessProfile().then(profile => {
+                // If profile is returned but lacks compliance data, we might want to prompt user
+                setBusinessProfile(profile);
+            });
+        }
+    }, [businessProfile, setBusinessProfile]);
+
     const generateApplicableTasks = useCallback((profile: BusinessProfile) => {
         setIsLoadingTasks(true);
         // Simulate API call
@@ -182,14 +231,14 @@ const CompliancePage: React.FC<PageProps> = ({ businessProfile, setBusinessProfi
             applicableTasks.push({ ...COMPLIANCE_DATABASE['TDS_FILING'], status: 'Pending' });
 
             if (profile.annualTurnover !== '< 20 Lakh') {
-                applicableTasks.push({ ...COMPLIANCE_DATABASE['GST_FILING'], status: 'Overdue' }); // Set as overdue for demo
+                applicableTasks.push({ ...COMPLIANCE_DATABASE['GST_FILING'], status: 'Overdue' }); 
             }
             if (profile.businessType === 'Private Limited Company') {
                 applicableTasks.push({ ...COMPLIANCE_DATABASE['ROC_AOC4'], status: 'Pending' });
                 applicableTasks.push({ ...COMPLIANCE_DATABASE['ROC_MGT7'], status: 'Pending' });
             }
             if (profile.hasEmployees) {
-                applicableTasks.push({ ...COMPLIANCE_DATABASE['PF_FILING'], status: 'Completed' }); // Set one as completed for demo
+                applicableTasks.push({ ...COMPLIANCE_DATABASE['PF_FILING'], status: 'Completed' }); 
                 applicableTasks.push({ ...COMPLIANCE_DATABASE['ESI_FILING'], status: 'Pending' });
             }
             setTasks(applicableTasks);
@@ -199,7 +248,10 @@ const CompliancePage: React.FC<PageProps> = ({ businessProfile, setBusinessProfi
 
     useEffect(() => {
         if (businessProfile) {
-            generateApplicableTasks(businessProfile);
+            // Check if profile is complete enough for compliance
+            if (businessProfile.businessType) {
+                generateApplicableTasks(businessProfile);
+            }
         } else {
             setTasks([]);
         }
@@ -207,6 +259,7 @@ const CompliancePage: React.FC<PageProps> = ({ businessProfile, setBusinessProfi
 
     const handleSaveProfile = (profile: BusinessProfile) => {
         setBusinessProfile(profile);
+        // Tasks will regenerate via useEffect
     };
 
     const handleSync = () => {
@@ -251,6 +304,8 @@ const CompliancePage: React.FC<PageProps> = ({ businessProfile, setBusinessProfi
         ];
     }, [tasks]);
     
+    // Determine if we need to show the prompt (no compliance info set)
+    const showSetupPrompt = !businessProfile || !businessProfile.businessType;
 
     return (
         <div className="p-4 sm:p-6 lg:p-8 space-y-8 bg-slate-50 dark:bg-slate-900">
@@ -259,9 +314,9 @@ const CompliancePage: React.FC<PageProps> = ({ businessProfile, setBusinessProfi
             
             <PageHeader
                 title="Compliance Management"
-                subtitle={businessProfile ? 'Your automated compliance dashboard.' : 'Setup your profile to get a personalized compliance list.'}
+                subtitle={!showSetupPrompt ? 'Your automated compliance dashboard.' : 'Setup your profile to get a personalized compliance list.'}
             >
-                {businessProfile && (
+                {!showSetupPrompt && (
                      <Button variant="outline" onClick={() => setIsProfileModalOpen(true)}>
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                         Edit Profile
@@ -273,9 +328,9 @@ const CompliancePage: React.FC<PageProps> = ({ businessProfile, setBusinessProfi
                 {stats.map((stat) => <StatCard key={stat.label} {...stat} />)}
             </div>
             
-            {!businessProfile ? (
+            {showSetupPrompt ? (
                  <Card className="text-center py-12 animate-fadeInUp">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
                     <h3 className="mt-4 text-lg font-medium text-slate-900 dark:text-slate-100">Get Started with Compliance</h3>
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Set up your business profile to see your personalized compliance tasks.</p>
                     <div className="mt-6">
