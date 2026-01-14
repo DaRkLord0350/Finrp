@@ -368,3 +368,5 @@ const CompliancePage: React.FC<PageProps> = ({ businessProfile, setBusinessProfi
         </div>
     );
 };
+
+export default CompliancePage;
